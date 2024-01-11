@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package baikal.speech;
+
+import "recognition_config.proto";
+import "google/protobuf/struct.proto";
+
+service FluencyService {
+    rpc Predict (PredictRequest)
+        returns (PredictResponse) {
+        }
+}
+
+message PredictRequest {
+    // 음성 bytes
+    bytes wave = 1;
+    // 전사 내용
+    string text = 2;
+    // STT 엔진
+    baikal.speech.Engine engine = 3;
+}
+
+message PredictResponse {
+    // 추가로 어떤 정보가 더 들어갈지 정해지지 않았으므로
+    // 여러 타입이 들어갈 수 있는 struct type 사용
+    google.protobuf.Struct result = 1;
+}

@@ -1,0 +1,183 @@
+syntax = "proto3";
+
+package baikal.speech;
+
+import "google/protobuf/duration.proto";
+
+message FluencyData {
+    // 고유 번호
+    string id = 1;
+    // 정제된 음성 파일(원본에 대한 참고)
+    VoiceRef voice_ref = 2;
+    // 공통 메타
+    map<string, string> meta = 3;
+    // 발화자 정보
+    repeated Speaker speakers = 4;
+    // 발화
+    repeated Utterance utters = 5;
+    // 담화
+    repeated Discourse computed = 6;
+    // 비유창성 특성
+    repeated Disfluency disfluencies = 7;
+}
+
+message VoiceRef {
+    // 음성 URL
+    string file_url = 1;
+    // 파일 이름
+    string filename = 2;
+    // 파일 크기
+    int32 size = 3;
+    // 원본 파일에 대한 HASH
+    string hash = 4;
+    // AIHUB 원본 데이터
+    string src_data = 5;
+    // 원본의 ID
+    string src_id = 6;
+    // 음성 정보
+    Voice voice = 7; 
+}
+
+// 음성 정보
+message Voice {
+    // 시작 위치
+    google.protobuf.Duration start_time = 1;
+    // 종료 위치
+    google.protobuf.Duration end_time = 2;
+    // 전체 길이
+    google.protobuf.Duration duration = 3;
+}
+
+// 발화자 정보
+message Speaker {
+    // 발화자 ID
+    string id = 1;
+    // 생년
+    int32 birth_year = 2;
+    // 성별
+    string gender = 3;
+    // 출생지
+    string birth_place = 4;
+    // 학력
+    int32 education_years = 5;
+    // 직업
+    string job = 6;
+}
+
+// 발화
+message Utterance {
+    // 발화 ID
+    string id = 1;
+    // 발화자 ID
+    string speaker_id = 2;
+    // 철자전사
+    string tr = 3;
+    // 발음전사
+    string ptr = 4;
+    // 시작 위치
+    google.protobuf.Duration start_time = 5;
+    // 종료 위치
+    google.protobuf.Duration end_time = 6;
+    // 전사 수정 여부
+    bool modified = 7;
+}
+
+// 담화
+message Discourse {
+    // 발화자 ID
+    string speaker_id = 1;
+    // 화자별 computed
+    Computed computed = 2;
+}
+
+// Computed
+message Computed {
+    // 담화 토큰 전체
+    repeated string tokens = 1;
+    // 토큰 개수
+    int32 token_count = 2;
+    // 서로 다른 낱말수
+    int32 ndw = 3;
+    // 낱말 형태-빈도 비
+    float ttr = 4;
+    // 말속도
+    float speech_speed = 5;
+}
+
+// 발화별 비유창성 특성
+message Disfluency {
+    // 문장번호
+    string utter_id = 1;
+    // 비유창성 특성
+    repeated DisfluencyLabel labels = 2;
+}
+
+// 비유창성 특성
+message DisfluencyLabel {
+    // 발현 위치
+    Range range = 1;
+    // 비유창성 타입
+    Type type = 2;
+    // 대상 텍스트
+    string text = 3;
+    // 텍스트의 시작 위치 - tr 기준
+    int32 offset = 4;
+    // 텍스트의 시작 위치 -  align_tr(ptr) 기준
+    int32 aligned_offset = 5;
+    // 텍스트의 길이
+    int32 length = 6;
+    // 음성 시작 위치
+    google.protobuf.Duration start_time = 7;
+    // 음성 종료 위치
+    google.protobuf.Duration end_time = 8;
+}
+
+enum Range {
+    // 정의되지 않음
+    Range_UNSPECIFIED = 0;
+    // 담화
+    DISCOURSE = 1;
+    // 문장
+    SENTENCE = 2;
+    // 절
+    CLAUSE = 3;
+    // 구
+    PHRASE = 4;
+    // 어절
+    TOKEN = 5;
+    // 형태
+    MORPHEME = 6;
+    // 음절
+    SYLLABLE = 7;
+    // 음소
+    PHONEME = 8;
+}
+
+enum Type {
+    // 정의되지 않음
+    Type_UNSPECIFIED = 0;
+    // 주저(HESITATION)
+    HS = 1;
+    // 대용어(ANAPHORA)
+    AP = 2;
+    // 수정(REVISION)
+    RV = 3;
+    // 수정의 중간 발화(Bridge)
+    RV_B = 4;
+    // 수정된 목표(Target)
+    RV_T = 5;
+    // 반복(REPETITION)
+    RP = 6;
+    // 반복의 발화 원형(Origin)
+    RP_O = 7;
+    // 연속으로 반복된 구간(Complex Repetition)
+    RP_CP = 8;
+    // 무의미어(Empty Word)
+    EW = 9;
+    // 간투사(Time Filler)
+    TF = 10;
+    // 첨가(Insertion)
+    IS = 11;
+    // 비운율적 발성(Dysrhythmic Phonation)
+    DP = 12;
+}
