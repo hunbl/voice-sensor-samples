@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import fluency_service_pb2 as fluency__service__pb2
+from . import fluency_service_pb2 as fluency__service__pb2
 
 
 class FluencyServiceStub(object):
